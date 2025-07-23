@@ -1,82 +1,58 @@
-import React, { useEffect, useMemo, useState } from 'react'
-// import { io } from 'socket.io-client'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginSignUp from './page/LoginSignUp'
-import SocketProvider from './context/SocketContext'
-import Chat from './page/Chat';
-import UserProvider from './context/UserContext';
+// import Chat from './page/Chat';
+import Home from './page/Home.jsx';
+import Login from './page/Login.jsx';
+import SignUp from './page/SignUp.jsx'
+import ProfilePage from './page/ProfilePage.jsx'
+import ProtectedRoute from './routes/ProtectedRoutes.jsx';
+import Dashboard from './page/Dashboard.jsx'
+import { useDispatch, useSelector } from 'react-redux';
+import { connectSocket, disconnectSocket, getSocket } from './service/socket.js'
+import { getOnlineUsers } from './features/auth/authSlice.js';
 
 const App = () => {
 
-    // const socket = useMemo(()=>io("http://localhost:3000"),[])
+  const { isAuthenticated, accessToken,  } = useSelector(state => state.auth)
 
-    // const [value, setValue] = useState("");
-    // const [socketId, setSocketId] = useState("");
-    // const [roomName, setRoomName] = useState("");
-    // const [message, setMessage] = useState([])
-    // const [users, setUsers] = useState([])
+    const dispatch = useDispatch()
+  //   // console.log(isAuthenticaed)
 
-    // const handleValue = (e) => {
-    //     e.preventDefault();
-    //     socket.emit("send-msg", {value, socketId});
-    //     setValue("");
-    //     setSocketId("")
-    // }
-
-    // const handleMsg = (user) => {
-    //   // e.preventDefault();
-    //   const msg = 'hello jazz'
-    //   socket.emit("send-msg", {user, msg})
-    //   console.log(user)
-    // }
-
-    // const handleCreateRoom = (e) => {
-    //   e.preventDefault();
-    //   socket.emit("custom-room", roomName)
-    //   setRoomName("");
-    // }
-    // //call methods here or listening event here
-    // useEffect(() => {
-    //     socket.on("connect", () => {
-    //         console.log(`you are now connected on ID:${socket.id}`);
-    //         socket.emit("add-user", socket.id)
-    //         socket.on("show-user", (data) => {
-    //           setUsers(data);
-    //         })
-    //       })
-          
-    //       console.log(users);
-
-    //     socket.on("msg-receive", (msg) => {
-    //       // setMessage([...message, msg])
-    //       console.log(msg);
-          
-    //     })
-
-    //     // socket.on("recieve-message", (msg)=>{
-    //     //     console.log(msg);
-    //     //     setMessage([...message, msg])
-    //     // })
-
-    //     // socket.on("room-create", (msg) => {
-    //     //   console.log(msg);
-    //     // })
-
-    //   })
+  useEffect(() => {
+    if(isAuthenticated && accessToken){
       
-      
+      connectSocket(accessToken)
+      const socket = getSocket();
+
+        // Online users list
+        socket.on("online_users", (users) => {
+          console.log("🟢 Online:", users);
+          dispatch(getOnlineUsers(users))
+          // dispatch({ type: 'auth/getOnlineUsers', payload: users });
+        });
+
+        // dispatch(getUsers())
+    }else {
+      disconnectSocket();
+    }
+  },[isAuthenticated, accessToken])
+  
   return (
-
-    <SocketProvider>
-      <UserProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<LoginSignUp />} />
-          <Route path="/chat" element={<Chat />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          {/* <Route path="/chat" element={<Chat />} />
+
+           {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Route> 
+
         </Routes>
       </Router>
-      </UserProvider>
-    </SocketProvider>
   )
 }
 

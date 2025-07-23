@@ -7,4 +7,6 @@ export default defineConfig({
   plugins: [react(),
     tailwindcss(),
   ],
+  // cacheDir: 'node_modules/.vite', // default
+  // clearScreen: false,
 })

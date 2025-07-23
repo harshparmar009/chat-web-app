@@ -1,16 +1,15 @@
 import jwt from "jsonwebtoken";
-import cookie from "cookie"; // to parse raw headers
-import { User } from "../../models/userModel.js";
+import { User } from "../models/userModel.js";
 
 const socketAuth = async(socket, next) => {
   try {
-    const token = socket.handshake.auth.token; // sent from client manually after login
+    const token = socket.handshake.auth?.token; // sent from client manually after login
     if (!token) {
       return next(new Error("Authentication failed: No token provided"));
     }
 
-    const decoded = jwt.verify(token, 'janksdashdbfawue');
-    const user = await User.findById(decoded.userId).select("-password -userName -email");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
       return next(new Error("Authentication failed: User not found"));
@@ -22,6 +21,6 @@ const socketAuth = async(socket, next) => {
     console.error("Socket auth error:", err);
     next(new Error("Authentication failed"));
   }
-};
+}
 
 export default socketAuth;

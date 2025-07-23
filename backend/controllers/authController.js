@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken"
 import { User } from "../models/userModel.js"
 import bcrypt from 'bcryptjs'
+import { generateRefreshToken, generateAccessToken } from "../lib/utils.js"
+import cloudinary from "../lib/cloudinary.js"
 
 export const signInController = async(req, res) => {
     try {
@@ -19,18 +21,30 @@ export const signInController = async(req, res) => {
         if (!isMatch) return res.status(401).json({ message: 'Invalid password' });
 
 
-        const token = jwt.sign({ userId: user._id, userName: user.userName }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        // const token = jwt.sign({ userId: user._id, userName: user.userName }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.cookie("token", token, {
+        const refreshToken = generateRefreshToken(user);
+        const accessToken = generateAccessToken(user);
+
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: "development", // set to false in dev if needed
+            secure: true, // set to false in dev if needed
             sameSite: "strict",
             maxAge: 24 * 60 * 60 * 1000,
           });
 
-        return res.json({ user: { _id: user._id, username: user.userName, email: user.email }, 
+         user.refreshToken = refreshToken
+         await user.save() 
+
+        return res.json(
+        { 
+            user: {
+                    _id: user._id,
+                    userName: user.userName,
+                    email: user.email,
+                  }, 
             message: "login succesful",
-            // token,
+            accessToken,
             success: true
         });
         
@@ -91,4 +105,62 @@ export const signUpController = async(req, res) => {
         message: `Error ${error}`
         })
     }
+} 
+
+
+//logout
+export const signOutController = async(req, res) => {
+    try {
+        res.clearCookie('refreshToken')
+
+        await User.findOneAndUpdate({refreshToken: req.cookies.refreshToken}, {refreshToken: null} )
+
+        res.json({ message: 'Logged out successfully', success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Logout error', error: err.message })
+    }
+}
+
+
+// refresh route controler in server
+export const refreshController = async (req, res) => {
+    const token = req.cookies.refreshToken;
+    if (!token) return res.status(401).json({ message: 'Refresh token missing' });
+  
+    try {
+      const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+      const user = await User.findById(decoded.userId);
+      if (!user || user.refreshToken !== token) return res.status(403).json({ message: 'Invalid refresh token' });
+  
+      const newAccessToken = generateAccessToken(user);
+      res.json({ accessToken: newAccessToken, success: true });
+    } catch (err) {
+      res.status(403).json({ message: 'Invalid or expired refresh token' });
+    }
+  };
+
+//upload profile image
+export const uploadImageController = async(req,res) => {
+    try{
+        const {profilePic} = req.body
+        const userId = req.user._id
+
+        if (!profilePic) {
+            return res.status(400).json({ message: "Profile pic is required" });
+          }
+
+       const uploadImage = await cloudinary.uploader.upload(profilePic)
+       const updatedUser = await User.findByIdAndUpdate(userId, 
+        { profilePic: uploadImage.secure_url}, {new: true })
+
+        return res.status(201).json({
+            updatedUser,
+            message: "Profile upload succefully",
+            success: true
+        })
+    }
+   catch (error) {
+    console.log("error in update profile:", error);
+    res.status(500).json({ message: "Upload failed" });
+  }
 } 
