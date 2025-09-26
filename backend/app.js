@@ -13,6 +13,7 @@ const corsOpt = {
     // methods: ["GET", "POST"],
     credentials: true
 }
+
 //middlewares
 app.use(cors(corsOpt));
 app.use(express.urlencoded({extended: true}))

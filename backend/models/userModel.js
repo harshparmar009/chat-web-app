@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     refreshToken: String,
+
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    
 },{timestamps:true});
 
 export const User = mongoose.model("User", userSchema);

@@ -78,7 +78,7 @@ const MessageInput = ({selectedUser}) => {
   };
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full bg-gray-800 rounded-xl">
     {imagePreview && (
       <div className="mb-3 flex items-center gap-2">
         <div className="relative">

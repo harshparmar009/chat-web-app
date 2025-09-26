@@ -3,6 +3,9 @@ import { User } from "../models/userModel.js"
 import bcrypt from 'bcryptjs'
 import { generateRefreshToken, generateAccessToken } from "../lib/utils.js"
 import cloudinary from "../lib/cloudinary.js"
+import { ChatRequest } from '../models/requestModel.js'
+import { Message } from "../models/messsageModel.js"
+import { UserChat } from "../models/userChatModel.js"
 
 export const signInController = async(req, res) => {
     try {
@@ -107,7 +110,6 @@ export const signUpController = async(req, res) => {
     }
 } 
 
-
 //logout
 export const signOutController = async(req, res) => {
     try {
@@ -120,7 +122,6 @@ export const signOutController = async(req, res) => {
         res.status(500).json({ message: 'Logout error', error: err.message })
     }
 }
-
 
 // refresh route controler in server
 export const refreshController = async (req, res) => {
@@ -164,3 +165,79 @@ export const uploadImageController = async(req,res) => {
     res.status(500).json({ message: "Upload failed" });
   }
 } 
+
+export const chatRequest = async(req, res) => {
+    const { senderId, receiverId } = req.body;
+
+  const existing = await ChatRequest.findOne({ sender: senderId, receiver: receiverId });
+  if (existing) return res.status(400).json({ message: 'Request already sent', success: false });
+
+  const request = new ChatRequest({ sender: senderId, receiver: receiverId });
+  await request.save();
+
+  // Notify receiver via socket
+//   io.to(receiverId).emit('chat_request_received', request);
+
+  res.json({ message: 'Request sent', request});
+}
+
+export const getChatRequest = async(req, res) => {
+try {
+  const { userId } = req.params
+  const request = await ChatRequest.find({ receiver: userId, status: 'pending' })
+
+  if(!request){
+    return res.status(500),json({message: "failed fetching request"})
+  }  
+
+  const senderId = request.map(req => req.sender)
+
+  const user = await User.find({_id: { $in: senderId}})
+  
+  res.json(user)
+  
+} catch (error) {
+  res.status(500).json({message: "Error fetching reques"})
+}
+}
+
+export const chatRequestAccept = async(req, res) => {
+   try {
+    const { userId } = req.body;
+
+    const request = await ChatRequest.findOne({sender:userId, receiver: req.user._id});
+    if (!request) return res.status(404).json({ message: 'Request not found' });
+  
+    request.status = 'accepted';
+    await request.save();
+
+  
+    // // Create chat document
+    await UserChat.create({ user: request.sender, friend: request.receiver})
+    await UserChat.create({ user: request.receiver, friend: request.sender})
+  
+  
+    // Notify both users
+  //   io.to(request.sender.toString()).emit('chat_request_accepted', chat);
+  //   io.to(request.receiver.toString()).emit('chat_request_accepted', chat);
+  
+    res.json({ message: 'Request Accept'  });
+
+   } catch (error) {
+    res.status(500).json({message: `request accept error ${error}`})
+   }
+}
+
+export const chatRequestDecline = async(req, res) => {
+    const { userId } = req.body;
+  const request = await ChatRequest.findById(userId);
+  if (!request) return res.status(404).json({ message: 'Request not found' });
+
+  request.status = 'declined';
+  await request.save();
+
+  // io.to(request.sender.toString()).emit('chat_request_declined', request);
+
+  res.json({ message: 'Request declined' });
+
+}

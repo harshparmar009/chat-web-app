@@ -1,6 +1,8 @@
 
 import { Server } from "socket.io";
 import socketAuth from "../middlewares/socketAuth.js";
+import { Message } from "../models/messsageModel.js";
+import { MessageCounter } from "../models/messageCounter.js";
 
 let io;
 const users = new Map(); // Map<userId, socketId>
@@ -91,6 +93,38 @@ export const socketConnection = (server) => {
     //   }
     // });
 
+    // client emits when chat is opened
+  //   socket.on("markMessagesSeen", async ({ chatId, userId }) => {
+  //     await Message.updateMany(
+  //       { receiver: userId, participants: chatId, seen: false },
+  //       { $set: { seen: true } }
+  //     );
+
+  // // notify the sender
+  //     io.to(chatId).emit("messagesSeen", { chatId, userId });
+  //   });
+
+    // Mark messages as seen
+  socket.on("markMessagesSeen", async ({ userId, friendId }) => {
+
+      // Update DB
+      await Message.updateMany(
+        { sender: friendId, receiver: userId, seen: false },
+        { $set: { seen: true } }
+      );
+
+        const receivedId = friendId
+        const senderId = userId
+
+      await MessageCounter.findOneAndUpdate(
+        { participants: { $all: [senderId, receivedId] } },
+        { $set: { [`unseenCounts.${senderId}`]: 0 } }
+      );  
+
+      // Notify the sender that their messages were seen
+      io.to(friendId.toString()).emit("messagesSeen", { userId, friendId });
+    });
+
     socket.on("disconnect", () => {
       users.delete(userId);
       console.log(`❌ Socket disconnected: ${socket.id} [UserID: ${userId}]`);
@@ -103,6 +137,7 @@ const emitOnlineUsers = () => {
   const onlineUserIds = Array.from(users.keys());
   io.emit("online_users", onlineUserIds);
 };
+
 
 export const getIO = () => {
   if (!io) throw new Error("Socket.IO not initialized");

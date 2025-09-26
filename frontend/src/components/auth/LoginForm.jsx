@@ -31,7 +31,7 @@ const LoginForm = () => {
   useEffect(() => {
     if (isAuthenticated) {
       console.log("Login success!");
-      navigate("/dashboard"); 
+      navigate("/inbox"); 
     }
   }, [isAuthenticated]);
 

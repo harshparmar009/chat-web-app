@@ -6,8 +6,14 @@ export const messageApi = createApi({
   baseQuery: customBaseQuery,
   tagTypes: ['Message'],
   endpoints: (builder) => ({
+
     getAllUsers: builder.query({
       query: () => '/message/users',
+      providesTags: ['Message'],
+    }),
+
+    getAcceptedUsers: builder.query({
+      query: () => '/message/accepted-users',
       providesTags: ['Message'],
     }),
 
@@ -36,9 +42,54 @@ export const messageApi = createApi({
       invalidatesTags: [{ type: "Messages", id: "LIST" }],
     }),
 
+    //Chat Request
+     chatRequest: builder.mutation({
+      query: ({ senderId, receiverId }) => ({
+        url: '/message/chat-request',
+        method: 'POST',
+        body: { senderId, receiverId },
+      })
+     }),
+
+     //Get Chat Request Query
+     getChatRequest: builder.query({
+      query: (userId) => `/message/chat-request/${userId}`
+     }),
+
+     //Chat Request accept
+     chatRequestAccept: builder.mutation({
+      query: ( userId ) => ({
+        url: '/message/chat-request/accept',
+        method: 'POST',
+        body: { userId },
+      }),
+      invalidatesTags: ["Request"],
+     }),
+
+     //Chat Request decline
+     chatRequestDecline: builder.mutation({
+      query: ({ userId }) => ({
+        url: '/message/chat-request/decline',
+        method: 'POST',
+        body: { userId },
+      })
+     }),
+
+     messageCounter: builder.query({
+      query: () => "/message/message-counter", // adjust path to your backend route
+      providesTags: ["Chats"],
+    }),
+    
   }),
 });
 
 export const { useGetAllUsersQuery, 
+  useGetAcceptedUsersQuery,
   useGetMessagesQuery,
-  useSendMessageMutation } = messageApi;
+  useSendMessageMutation,
+useChatRequestMutation,
+useGetChatRequestQuery,
+useChatRequestAcceptMutation,
+useChatRequestDeclineMutation,
+useMessageCounterQuery,
+} = messageApi;

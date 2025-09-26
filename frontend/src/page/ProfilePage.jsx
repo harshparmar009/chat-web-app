@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-// import { updateProfile } from '../features/auth/authThunks'
-import { updateProfile } from '../features/auth/auth.thunks.js'
-import { ImageUp, Mail, User } from 'lucide-react'
+import { ArrowLeft, ImageUp, Mail, User } from 'lucide-react'
 import { useUpdateProfileMutation } from '../features/auth/authApi.js'
+import { FaBackward } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
 
 const ProfilePage = () => {
 
@@ -32,6 +32,11 @@ const ProfilePage = () => {
 
   return (
     <div className="h-screen pt-20">
+        <div className='pl-8'>
+        <Link to={'/inbox'}>
+          <ArrowLeft/>
+        </Link>
+        </div>
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">

@@ -1,13 +1,13 @@
 import { X } from "lucide-react";
 import { useSelector } from "react-redux";
-import { setSelectedUser } from "../../features/chat/chatSlice";
+// import { setSelectedUser } from "../../features/chat/chatSlice";
 
 const ChatHeader = ({selectedUser}) => {
 
   const { onlineUsers } = useSelector(state => state.auth);
 
   return (
-    <div className="p-2.5 border-b border-base-300">
+    <div className="p-2.5 border-b border-base-300 bg-gray-800">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Avatar */}
@@ -27,9 +27,9 @@ const ChatHeader = ({selectedUser}) => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
+        {/* <button onClick={() => setSelectedUser(null)}>
           <X />
-        </button>
+        </button> */}
       </div>
     </div>
   );
