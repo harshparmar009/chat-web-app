@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs'
 import { generateRefreshToken, generateAccessToken } from "../lib/utils.js"
 import cloudinary from "../lib/cloudinary.js"
 import { ChatRequest } from '../models/requestModel.js'
-import { Message } from "../models/messsageModel.js"
 import { UserChat } from "../models/userChatModel.js"
 
 export const signInController = async(req, res) => {
@@ -45,6 +44,7 @@ export const signInController = async(req, res) => {
                     _id: user._id,
                     userName: user.userName,
                     email: user.email,
+                    profilePic: user.profilePic
                   }, 
             message: "login succesful",
             accessToken,
@@ -79,6 +79,7 @@ export const signUpController = async(req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+      
 
        const user = await User.create({
             userName,
@@ -86,16 +87,6 @@ export const signUpController = async(req, res) => {
             email,
         })
 
-        // const token = jwt.sign( user._id , process.env.JWT_SECRET, {
-        //     expiresIn: "1d",
-        //   });
-        
-        //   res.cookie("token", token, {
-        //     maxAge: 7 * 24 * 60 * 60 * 1000, // MS
-        //     httpOnly: true, // prevent XSS attacks cross-site scripting attacks
-        //     sameSite: "strict", // CSRF attacks cross-site request forgery attacks
-        //     secure: "development",
-        //   });
         
          
         return res.status(201).json({
@@ -141,30 +132,62 @@ export const refreshController = async (req, res) => {
   };
 
 //upload profile image
-export const uploadImageController = async(req,res) => {
-    try{
-        const {profilePic} = req.body
-        const userId = req.user._id
+// export const uploadImageController = async(req,res) => {
+//     try{
+//         const {profilePic} = req.body
+//         const userId = req.user._id
 
-        if (!profilePic) {
-            return res.status(400).json({ message: "Profile pic is required" });
-          }
+//         if (!profilePic) {
+//             return res.status(400).json({ message: "Profile pic is required" });
+//           }
 
-       const uploadImage = await cloudinary.uploader.upload(profilePic)
-       const updatedUser = await User.findByIdAndUpdate(userId, 
-        { profilePic: uploadImage.secure_url}, {new: true })
+//        const uploadImage = await cloudinary.uploader.upload(profilePic)
+//        const updatedUser = await User.findByIdAndUpdate(userId, 
+//         { profilePic: uploadImage.secure_url}, {new: true })
 
-        return res.status(201).json({
-            updatedUser,
-            message: "Profile upload succefully",
-            success: true
-        })
+//         return res.status(201).json({
+//             updatedUser,
+//             message: "Profile upload succefully",
+//             success: true
+//         })
+//     }
+//    catch (error) {
+//     console.log("error in update profile:", error);
+//     res.status(500).json({ message: "Upload failed" });
+//   }
+// } 
+
+export const uploadImageController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "File require" });
     }
-   catch (error) {
+
+    // Convert file buffer to base64 for cloudinary upload
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const uploadImage = await cloudinary.uploader.upload(base64Image);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: uploadImage.secure_url },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      updatedUser,
+      message: "Profile photo updated",
+      success: true,
+    });
+  } catch (error) {
     console.log("error in update profile:", error);
     res.status(500).json({ message: "Upload failed" });
   }
-} 
+};
+
+
 
 export const chatRequest = async(req, res) => {
     const { senderId, receiverId } = req.body;
@@ -179,6 +202,20 @@ export const chatRequest = async(req, res) => {
 //   io.to(receiverId).emit('chat_request_received', request);
 
   res.json({ message: 'Request sent', request});
+}
+
+export const checkChatRequest = async(req, res) => {
+  try {
+    const { senderId, receiverId } = req.body;
+    const existingReq = await ChatRequest.findOne({ sender: senderId, receiver: receiverId });
+    if (existingReq) {
+      return res.json({ success: existingReq.status = "pending" ? true : false });
+    } else {
+      return res.json({ success: false });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
 }
 
 export const getChatRequest = async(req, res) => {
@@ -230,7 +267,8 @@ export const chatRequestAccept = async(req, res) => {
 
 export const chatRequestDecline = async(req, res) => {
     const { userId } = req.body;
-  const request = await ChatRequest.findById(userId);
+  
+  const request = await ChatRequest.findOne({sender:userId, receiver: req.user._id});
   if (!request) return res.status(404).json({ message: 'Request not found' });
 
   request.status = 'declined';
@@ -240,4 +278,22 @@ export const chatRequestDecline = async(req, res) => {
 
   res.json({ message: 'Request declined' });
 
+}
+
+
+export const searchQueryController = async(req, res) => {
+  try {
+    const { userName } = req.params;
+    if (!userName) return res.json([]);
+
+    const users = await User.find({
+      $or: [
+        { userName: { $regex: userName, $options: "i" } },
+      ],
+    }).select("-password -refreshToken");
+
+    res.json(users); // return array directly
+  } catch (error) {
+    res.status(500).json({ message: "Error searching users" });
+  }
 }

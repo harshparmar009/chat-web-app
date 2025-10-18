@@ -44,10 +44,18 @@ export const messageApi = createApi({
 
     //Chat Request
      chatRequest: builder.mutation({
-      query: ({ senderId, receiverId }) => ({
+      query: (data) => ({
         url: '/message/chat-request',
         method: 'POST',
-        body: { senderId, receiverId },
+        body: data,
+      })
+     }),
+
+     checkChatRequest : builder.mutation({
+      query: (data) => ({
+        url: '/message/check-chat-request',
+        method: 'POST',
+        body: data,
       })
      }),
 
@@ -68,7 +76,7 @@ export const messageApi = createApi({
 
      //Chat Request decline
      chatRequestDecline: builder.mutation({
-      query: ({ userId }) => ({
+      query: ( userId ) => ({
         url: '/message/chat-request/decline',
         method: 'POST',
         body: { userId },
@@ -88,6 +96,7 @@ export const { useGetAllUsersQuery,
   useGetMessagesQuery,
   useSendMessageMutation,
 useChatRequestMutation,
+useCheckChatRequestMutation,
 useGetChatRequestQuery,
 useChatRequestAcceptMutation,
 useChatRequestDeclineMutation,

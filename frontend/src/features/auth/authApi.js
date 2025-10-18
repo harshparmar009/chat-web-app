@@ -1,12 +1,3 @@
-// import API from '../../service/axios.js';
-
-// export const login = (credentials) => API.post('/auth/login', credentials);
-// export const register = (data) => API.post('/auth/register', data);
-// export const me = () => API.get('/auth/me');
-// export const refresh = () => API.get('/auth/refresh');
-// export const logout = () => API.post('/auth/logout');
-// export const updateProfile = (data) => API.post("auth/update-profile", data)
-
 
 // auth api handling using RTK's 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
@@ -51,13 +42,18 @@ export const authApi = createApi({
     }),
 
     updateProfile: builder.mutation({
-      query: (data) => ({
+      query: (formData) => ({
         url: '/auth/update-profile',
         method: 'PUT',
-        body: data,
+        body: formData,
       }),
       invalidatesTags: ['Auth'],
     }),
+
+    search: builder.query({
+      query: (userName) => `/auth/search/${userName}`
+     }),
+
   }),
 });
 
@@ -66,6 +62,7 @@ export const {
   useRegisterMutation,
   useGetMeQuery,
   useRefreshQuery,
+  useSearchQuery,
   useLogoutMutation,
   useUpdateProfileMutation,
 } = authApi;

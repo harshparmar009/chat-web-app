@@ -15,9 +15,11 @@ const Messages = () => {
   const { data, isLoading, error } = useGetAcceptedUsersQuery(undefined, {
     refetchOnMountOrArgChange: true,});
 
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false)    
+  // const [showOnlineOnly, setShowOnlineOnly] = useState(false)    
   const dispatch = useDispatch()
   const {selectedUser} = useSelector(state => state.chat)
+
+  const [filter, setFilter] = useState("all");
   
   const { onlineUsers } = useSelector(state => state.auth || [])
 
@@ -30,8 +32,9 @@ const Messages = () => {
     console.log("Users fetch Error:" , error);
   }
   
-  const filteredUsers = showOnlineOnly
-  ? users.filter((user) => onlineUsers.includes(user._id)) : users;
+  // const filteredUsers = showOnlineOnly
+  // ? users.filter((user) => onlineUsers.includes(user._id)) : users;
+
 
   const handleUserSelect = (user) => {      
     dispatch(setSelectedUser(user));
@@ -43,9 +46,16 @@ const Messages = () => {
   ) || 0;  
 
   const perUserCounter = {};
-counter?.forEach(chat => {
-  perUserCounter[chat.friend._id] = chat.unseenCount;
-});
+  counter?.forEach(chat => {
+    perUserCounter[chat.friend._id] = chat.unseenCount;
+  });
+
+  // ===== FILTER LOGIC =====
+  let filteredUsers = users;
+
+  if (filter === "unread") {
+    filteredUsers = users.filter(u => (perUserCounter[u._id] || 0) > 0);
+  }
 
   return (
     <div className='h-full flex '>
@@ -54,26 +64,43 @@ counter?.forEach(chat => {
           <div className="flex flex-1 overflow-hidden gap-4 pt-4">
             {/* Inbox List */}
             <section className="w-1/3 border-r border-gray-700 bg-gray-800 rounded-xl">
-              <div className="p-3">
-                <h2 className="flex justify-between text-sm mb-2">
-                  <span>Inbox</span>
-                {totalUnseen > 0 && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                    {totalUnseen} New
-                  </span>
-                )}
-              </h2>
-              
-                <div className="flex space-x-2 text-xs mb-4">
-                  <button className="text-blue-400">All</button>
-                  <button>Unread</button>
-                  <button>Group</button>
-                </div>
-                              
-              </div>
+            <div className="p-3">
+            <h2 className="flex justify-between text-sm mb-2">
+              <span>Inbox</span>
+              {totalUnseen > 0 && (
+                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {totalUnseen} New
+                </span>
+              )}
+            </h2>
+
+            {/* FILTER BUTTONS */}
+            <div className="flex space-x-2 text-xs mb-4">
+              <button
+                onClick={() => setFilter("all")}
+                className={`cursor-pointer ${filter === "all" ? "text-blue-400" : ""}`}
+              >
+                All
+              </button>
+
+              <button
+                onClick={() => setFilter("unread")}
+                className={`cursor-pointer ${filter === "unread" ? "text-blue-400" : ""}`}
+              >
+                Unread
+              </button>
+
+              {/* <button
+                onClick={() => setFilter("group")}
+                className={filter === "group" ? "text-blue-400" : ""}
+              >
+                Group
+              </button> */}
+            </div>
+          </div>
                 
                 <div className='h-[80%] overflow-y-auto'>
-              {users.map((user) => {
+              {filteredUsers.map((user) => {
                  const unseen = perUserCounter[user._id] || 0;
           return(
           <button

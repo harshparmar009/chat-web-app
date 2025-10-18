@@ -1,28 +1,29 @@
 import React from 'react'
-import { useGetChatRequestQuery, useChatRequestAcceptMutation, useChatRequestDeclineMutation } from '../features/chat/chatApi'
+import { useGetChatRequestQuery, useChatRequestAcceptMutation, useChatRequestDeclineMutation,  } from '../features/chat/chatApi'
 import { useSelector } from 'react-redux'
+import NoNotificationSelected from '../components/chat/NoNotificationSelected';
 
 const Notification = () => {
 
     const [ chatRequestAccept ] = useChatRequestAcceptMutation();
-    const [ chatRequestDecline ] = useChatRequestDeclineMutation();
+    // const [ chatRequestDecline ] = useChatRequestDeclineMutation();
+    const [ chatRequestDecline] = useChatRequestDeclineMutation() 
     const {user, error } = useSelector((state) => state.auth)
-    const {data: request, isLoading, refatch} = useGetChatRequestQuery(user?._id, {
+    const {data: request, isLoading, refetch} = useGetChatRequestQuery(user?._id, {
         skip: !user
     })
     
    const handleAccept = async(userId) => {
     const req  = await chatRequestAccept(userId).unwrap()
     console.log(req.message);
-    refatch()
+    refetch()
     
     }
 
     const handleDecline = async(userId) => {
        const req = await chatRequestDecline(userId).unwrap()
        console.log(req.message);
-       refatch()
-
+       refetch()
     }
 
   return (
@@ -45,17 +46,18 @@ const Notification = () => {
                        <div className='flex items-center gap-2 mt-2'>
                         <button 
                         onClick={() => handleAccept(req._id)}
-                        className='bg-green-500 text-white px-2 py-1 rounded'>Accept</button>
+                        className='cursor-pointer bg-green-500 text-white px-2 py-1 rounded'>Accept</button>
 
                         <button 
                         onClick={() => handleDecline(req._id)}
-                        className='bg-green-500 text-white px-2 py-1 rounded'>Decline</button>
+                        className='cursor-pointer bg-green-500 text-white px-2 py-1 rounded'>Decline</button>
                        </div>
                     </div>
                 ))}
            </div>
 
           </section>
+          <NoNotificationSelected/>      
 
         </div>
   </div>

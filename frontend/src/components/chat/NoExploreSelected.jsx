@@ -1,6 +1,6 @@
 import { MessageSquare } from "lucide-react";
 
-const NoChatSelected = () => {
+const NoExploreSelected = () => {
   return (
     <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-gray-800 rounded-xl">
       <div className="max-w-md text-center space-y-6">
@@ -19,11 +19,11 @@ const NoChatSelected = () => {
         {/* Welcome Text */}
         <h2 className="text-2xl font-bold">Welcome to Connectify!</h2>
         <p className="text-base-content/60">
-          Select a conversation from the sidebar to start chatting
+          Select a profile from the sidebar to start Exploring
         </p>
       </div>
     </div>
   );
 };
 
-export default NoChatSelected;
+export default NoExploreSelected;
