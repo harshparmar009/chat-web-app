@@ -9,7 +9,7 @@ import messageRoute from "./routes/messageRoute.js"
 const app = express();
 
 const corsOpt = {
-    origin: "http://localhost:5173",
+    origin: "https://chat-web-3pmtj9zkv-hardins-projects-4071acd0.vercel.app",
     // methods: ["GET", "POST"],
     credentials: true
 }
