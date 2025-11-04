@@ -14,25 +14,36 @@ const app = express();
 //     credentials: true
 // }
 
-const allowedOrigins = [
-    "https://chat-web-3pmtj9zkv-hardins-projects-4071acd0.vercel.app", // your current frontend
-    "https://chat-web-app-two-delta.vercel.app", // optional (keep if you might reuse)
-    "http://localhost:5173" // for local development
-  ];
+// const allowedOrigins = [
+//     "https://chat-web-3pmtj9zkv-hardins-projects-4071acd0.vercel.app", // your current frontend
+//     "https://chat-web-app-two-delta.vercel.app", // optional (keep if you might reuse)
+//     "http://localhost:5173" // for local development
+//   ];
   
 
 //middlewares
-// app.use(cors(corsOpt));
-app.use(cors({
+// Dynamic CORS config that allows all vercel.app subdomains
+app.use(
+  cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        origin.includes("chat-web") && origin.endsWith(".vercel.app") || // allow all vercel subdomains
+        origin === "http://localhost:5173"
+      ) {
         callback(null, true);
       } else {
+        console.log("❌ Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-  }));
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
+
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(cookieParser());
