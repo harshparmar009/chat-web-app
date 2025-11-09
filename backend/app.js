@@ -28,9 +28,7 @@ app.use(
     origin: function (origin, callback) {
       if (
         !origin ||
-        origin.includes("chat-web") && origin.endsWith(".vercel.app") || // allow all vercel subdomains
-        origin === "http://localhost:5173"
-      ) {
+        origin.includes("chat-web") && origin.endsWith(".vercel.app")      ) {
         callback(null, true);
       } else {
         console.log("❌ Blocked by CORS:", origin);
