@@ -23,23 +23,48 @@ const app = express();
 
 //middlewares
 // Dynamic CORS config that allows all vercel.app subdomains
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (
+//         !origin ||
+//         origin.includes("vercel.app") ||
+//         origin === "http://localhost:5173"
+//       ) {
+//         callback(null, true);
+//       } else {
+//         console.log("❌ Blocked by CORS:", origin);
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (
-        !origin ||
-        origin.includes("vercel.app") ||
-        origin === "http://localhost:5173"
-      ) {
-        callback(null, true);
-      } else {
-        console.log("❌ Blocked by CORS:", origin);
-        callback(new Error("Not allowed by CORS"));
+      try {
+        // allow localhost & all vercel deployments
+        if (
+          !origin ||
+          origin.includes("vercel.app") ||
+          origin === "http://localhost:5173"
+        ) {
+          callback(null, true);
+        } else {
+          console.log("❌ Blocked by CORS:", origin);
+          callback(new Error("Not allowed by CORS"));
+        }
+      } catch (err) {
+        console.error("CORS error:", err.message);
+        callback(null, false);
       }
     },
     credentials: true,
   })
 );
+
 
 // Handle preflight requests
 app.options("*", cors());
