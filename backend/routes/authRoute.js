@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { refreshController, searchQueryController, signInController, signOutController, signUpController, uploadImageController } from "../controllers/authController.js";
+import { generateFcmToken, refreshController, searchQueryController, signInController, signOutController, signUpController, uploadImageController } from "../controllers/authController.js";
 import { isAuthenticated } from "../middlewares/authMiddleware.js";
 import multer from "multer";
 
@@ -16,6 +16,8 @@ router.put(
   upload.single("profilePic"),   // <-- THIS IS CRITICAL
   uploadImageController
 );
+
+router.post("/register-token", isAuthenticated, generateFcmToken);
 
 router.get("/me", isAuthenticated,  (req, res) => {
     res.status(200).json({ user: req.user,

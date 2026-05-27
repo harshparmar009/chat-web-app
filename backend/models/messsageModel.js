@@ -4,7 +4,8 @@ const messageSchema = new mongoose.Schema(
   {
     text: {
       type: String,
-      required: true, // fixed typo: use `required` instead of `require`
+      // required: true, // fixed typo: use `required` instead of `require`
+       default: "",
       trim: true,
     },
     sender: {

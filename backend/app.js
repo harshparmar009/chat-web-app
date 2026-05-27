@@ -88,6 +88,8 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoute)
 app.use("/api/v1/message", messageRoute)
 
+//
+
 // Error handler
 // app.use(errorHandler);
 

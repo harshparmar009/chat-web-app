@@ -45,10 +45,10 @@ const SignUpForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 flex items-center flex-col text-white ">
-    <input name="userName" placeholder="Username" required className="input input-bordered w-full pl-10 text-white" />
+    <input name="userName" placeholder="Username" required className="input input-bordered w-full pl-10 text-black" />
     <input name="email" onChange={(e) => {setEmail(e.target.value); validateEmail(e.target.value) }} 
     value={email}
-    placeholder="Email" type="email" required className="input input-bordered w-full pl-10 text-white"/>
+    placeholder="Email" type="email" required className="input input-bordered w-full pl-10 text-black"/>
 
         {emailValid !== null && (
             <p
@@ -65,9 +65,9 @@ const SignUpForm = () => {
     onChange={(e)=>{setPass(e.target.value)
       validatePassword(e.target.value)}
     } value={pass}
-    required className="input input-bordered w-full pl-10 text-white"/>
+    required className="input input-bordered w-full pl-10 text-black"/>
     
-    <span className="absolute right-2 top-2"
+    <span className="absolute right-2 top-2 z-50 text-gray-500 cursor-pointer"
     onClick={() => setShowPass(!showPass)}>
       {showPass ?  <Eye/> : <EyeOff/> }
     </span>

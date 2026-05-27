@@ -107,9 +107,9 @@ const Messages = () => {
             key={user._id}
             onClick={() => handleUserSelect(user)}
             className={`
-              w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
-              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              w-full p-3 flex items-center gap-3 bg-gray-800 
+              hover:bg-gray-600 transition 
+              ${selectedUser?._id === user._id ? "bg-gray-600" : ""}
               `
         }
           >
@@ -132,7 +132,7 @@ const Messages = () => {
             {/* User info - only visible on larger screens */}
             <div className="hidden lg:block text-left min-w-0">
               <div className="font-medium truncate">{user?.userName}</div>
-              <div className="text-sm text-zinc-400">
+              <div className="text-sm text-gray-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
             </div>

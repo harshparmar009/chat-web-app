@@ -89,7 +89,7 @@ const MessageInput = ({selectedUser}) => {
           />
           <button
             onClick={removeImage}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-black  bg-base-300
             flex items-center justify-center"
             type="button"
           >
@@ -103,7 +103,7 @@ const MessageInput = ({selectedUser}) => {
       <div className="flex-1 flex gap-2">
         <input
           type="text"
-          className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+          className="w-full input input-bordered rounded-lg input-sm sm:input-md text-gray-700"
           placeholder="Type a message..."
           value={text}
           onChange={handleTyping}
@@ -118,7 +118,7 @@ const MessageInput = ({selectedUser}) => {
 
         <button
           type="button"
-          className={`hidden sm:flex btn btn-circle
+          className={`hidden sm:flex btn btn-circle text-black
                    ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
           onClick={() => fileInputRef.current?.click()}
         >
@@ -127,7 +127,7 @@ const MessageInput = ({selectedUser}) => {
       </div>
       <button
         type="submit"
-        className="btn btn-sm btn-circle"
+        className="btn btn-md btn-circle bg-white/80 text-black"
         disabled={!text.trim() && !imagePreview}
       >
         <Send size={22} />

@@ -48,7 +48,7 @@ const ProfileContainer = () => {
               <User className="w-4 h-4" />
               Full Name
             </div>
-            <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{userProfile?.userName}</p>
+            <p className="px-4 py-2.5 bg-base-200 rounded-lg border text-black">{userProfile?.userName}</p>
           </div>
 
           <div className="space-y-1.5">
@@ -56,11 +56,11 @@ const ProfileContainer = () => {
               <Mail className="w-4 h-4" />
               Email Address
             </div>
-            <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{userProfile?.email}</p>
+            <p className="px-4 py-2.5 bg-base-200 rounded-lg border text-black">{userProfile?.email}</p>
           </div>
         </div>
 
-        <div className="mt-6 bg-base-300 rounded-xl p-6">
+        <div className="mt-6 bg-base-300 rounded-xl p-6 text-black">
           <h2 className="text-lg font-medium mb-4">Account Information</h2>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between py-2 border-b border-zinc-700">
@@ -74,7 +74,7 @@ const ProfileContainer = () => {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl">
+        <div className="mt-6 rounded-xl text-black">
           {reqSent ? (
             <button className="px-3 py-2 bg-base-300 cursor-not-allowed">
               Already Sent

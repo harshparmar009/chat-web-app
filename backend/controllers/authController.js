@@ -6,6 +6,47 @@ import cloudinary from "../lib/cloudinary.js"
 import { ChatRequest } from '../models/requestModel.js'
 import { UserChat } from "../models/userChatModel.js"
 
+
+export const generateFcmToken = async (req, res) => {
+   try {
+
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({
+        message: "Token required",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // avoid duplicate tokens
+    if (!user.fcmTokens.includes(token)) {
+      user.fcmTokens.push(token);
+      await user.save();
+    }
+
+    console.log("FCM token saved ✅", token);
+
+    res.status(200).json({
+      success: true,
+    });
+   } catch (error) {
+
+    console.log("Register token error:", error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+   }
+  };
+
 export const signInController = async(req, res) => {
     try {
         const { userName, password} = req.body

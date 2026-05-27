@@ -4,8 +4,10 @@ import { getReceiverSocketId } from "../config/socketConnection.js"
 import { Message } from "../models/messsageModel.js"
 import { UserChat } from '../models/userChatModel.js'
 import { MessageCounter } from '../models/messageCounter.js'
+import admin from "../firebaseAdmin.js"
 
 // const io = getIO()
+
 
 export const getAllUsers = async(req, res) => {
 
@@ -84,6 +86,34 @@ export const getMessages = async (req, res) => {
       });
   
       await newMessage.save();
+
+    //push notification
+    const sender = await User.findById(senderId);
+    const receiver = await User.findById(receiverId);
+
+    console.log(receiver?.fcmTokens, "receiver fcm tokens");
+      if (
+      receiver?.fcmTokens &&
+      receiver.fcmTokens.length > 0
+    ) {
+      await admin.messaging().sendEachForMulticast({
+        tokens: receiver.fcmTokens,
+
+        notification: {
+          title: sender.userName,
+          body: text || "Sent an image",
+        },
+
+        data: {
+          senderId: senderId.toString(),
+        },
+      });
+
+      console.log(
+        "Push notification sent ✅"
+      );
+    }
+
 
        // Update chat counter
     let chat = await MessageCounter.findOneAndUpdate(
