@@ -23,29 +23,77 @@ API.interceptors.request.use(
 );
 
 // Response Interceptor: Handle token expiration
+// API.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
+
+//     // Token expired or unauthorized
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+
+//       try {
+//         // Try to refresh token
+//         // const res = await store.dispatch(refreshToken()).unwrap();
+//         const res = await useRefreshQuery().unwrap()
+
+//         const newAccessToken = res.accessToken;
+
+//         // Retry original request with new token
+//         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+//         return API(originalRequest);
+//       } catch (err) {
+//         // If refresh fails, logout user
+//         // store.dispatch(logoutUser());
+//         await useLogoutMutation()
+//         return Promise.reject(err);
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
+
+// 2nd Response Interceptor: Handle token expiration
 API.interceptors.response.use(
   (response) => response,
+
   async (error) => {
     const originalRequest = error.config;
 
-    // Token expired or unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
-        // Try to refresh token
-        // const res = await store.dispatch(refreshToken()).unwrap();
-        const res = await useRefreshQuery().unwrap()
+        // Refresh token request
+        const res = await axios.get(
+          `${import.meta.env.VITE_CLIENT_URI}/refresh`,
+          {
+            withCredentials: true,
+          }
+        );
 
-        const newAccessToken = res.accessToken;
+        const newAccessToken = res.data.accessToken;
 
-        // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // Save new token
+        localStorage.setItem("accessToken", newAccessToken);
+
+        // Attach token again
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
+
+        // Retry original request
         return API(originalRequest);
+
       } catch (err) {
-        // If refresh fails, logout user
-        // store.dispatch(logoutUser());
-        await useLogoutMutation()
+
+        localStorage.removeItem("accessToken");
+
+        window.location.href = "/login";
+
         return Promise.reject(err);
       }
     }

@@ -37,6 +37,7 @@ const Home = () => {
             className="flex flex-col min-h-screen text-white bg-slate-900"
             style={pageStyle}
         >
+            
             {/* Header / Navigation Bar */}
             <header className="w-full p-4 md:p-6 backdrop-blur-sm bg-slate-900/50 sticky top-0 z-10 shadow-lg">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">

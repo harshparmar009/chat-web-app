@@ -5,6 +5,7 @@ import { generateRefreshToken, generateAccessToken } from "../lib/utils.js"
 import cloudinary from "../lib/cloudinary.js"
 import { ChatRequest } from '../models/requestModel.js'
 import { UserChat } from "../models/userChatModel.js"
+import admin from "../firebaseAdmin.js"
 
 
 export const generateFcmToken = async (req, res) => {
@@ -239,8 +240,41 @@ export const chatRequest = async(req, res) => {
   const request = new ChatRequest({ sender: senderId, receiver: receiverId });
   await request.save();
 
+  const receiver = await User.findById(receiverId);
+  const sender = await User.findById(senderId);
+
   // Notify receiver via socket
 //   io.to(receiverId).emit('chat_request_received', request);
+//notify reciever via firebase
+  try {
+      if (receiver?.fcmTokens?.length > 0) {
+        await admin
+          .messaging()
+          .sendEachForMulticast({
+            tokens: receiver.fcmTokens,
+
+            notification: {
+              title: "New Chat Request",
+              body: `${sender.userName} sent you a chat request`,
+            },
+
+            data: {
+              type: "chat_request",
+              senderId: senderId.toString(),
+            },
+          });
+
+        console.log(
+          "Chat request notification sent ✅"
+        );
+      }
+    } catch (fcmError) {
+      console.log(
+        "FCM Error:",
+        fcmError.message
+      );
+    }
+
 
   res.json({ message: 'Request sent', request});
 }
