@@ -9,6 +9,7 @@ Sentry.init({
   // debug: true,
 });
 
-console.log("SENTRY DSN:", process.env.SENTRY_DSN);
+//check if Sentry is configured correctly
+// console.log("SENTRY DSN:", process.env.SENTRY_DSN);
 
 export default Sentry;

@@ -1,132 +1,15 @@
-// // backend/app.js
-// import express from "express";
-// import cors from "cors";
-// import cookieParser from "cookie-parser";
-// import * as Sentry from "@sentry/node";
+import dotenv from "dotenv";
 
-// import "./sentry.js";
+dotenv.config();
 
-// import authRoute from "./routes/authRoute.js";
-// import messageRoute from "./routes/messageRoute.js"
-// import dotenv from "dotenv";
-
-// dotenv.config();
-
-
-// const app = express();
-
-// // const corsOpt = {
-// //     origin: "https://chat-web-app-two-delta.vercel.app",
-// //     // methods: ["GET", "POST"],
-// //     credentials: true
-// // }
-
-// // const allowedOrigins = [
-// //     "https://chat-web-3pmtj9zkv-hardins-projects-4071acd0.vercel.app", // your current frontend
-// //     "https://chat-web-app-two-delta.vercel.app", // optional (keep if you might reuse)
-// //     "http://localhost:5173" // for local development
-// //   ];
-  
-
-// //middlewares
-// // Dynamic CORS config that allows all vercel.app subdomains
-// // app.use(
-// //   cors({
-// //     origin: function (origin, callback) {
-// //       if (
-// //         !origin ||
-// //         origin.includes("vercel.app") ||
-// //         origin === "http://localhost:5173"
-// //       ) {
-// //         callback(null, true);
-// //       } else {
-// //         console.log("❌ Blocked by CORS:", origin);
-// //         callback(new Error("Not allowed by CORS"));
-// //       }
-// //     },
-// //     credentials: true,
-// //   })
-// // );
-
-// // app.use(
-// //   cors({
-// //     origin: function (origin, callback) {
-// //       try {
-// //         // allow localhost & all vercel deployments
-// //         if (
-// //           !origin ||
-// //           origin.includes("vercel.app") ||
-// //           origin === "http://localhost:5173"
-// //         ) {
-// //           callback(null, true);
-// //         } else {
-// //           console.log("❌ Blocked by CORS:", origin);
-// //           callback(new Error("Not allowed by CORS"));
-// //         }
-// //       } catch (err) {
-// //         console.error("CORS error:", err.message);
-// //         callback(null, false);
-// //       }
-// //     },
-// //     credentials: true,
-// //   })
-// // );
-
-// app.use(
-//   cors({
-//     origin: process.env.CLIENT_URL, // allow only your Vercel frontend
-//     credentials: true,
-//   })
-// );
-
-
-// // Handle preflight requests
-// // app.options("*", cors());
-
-// app.use(express.urlencoded({extended: true}))
-// app.use(express.json())
-// app.use(cookieParser());
-
-// //API ROUTES
-// app.use("/api/v1/auth", authRoute)
-// app.use("/api/v1/message", messageRoute)
-
-
-
-// // Sentry error handler
-// Sentry.setupExpressErrorHandler(app);
-// //
-
-// app.use((err, req, res, next) => {
-//   console.error(err);
-
-//   res.status(500).json({
-//     success: false,
-//     message: err.message,
-//   });
-// });
-
-// // Error handler
-// // app.use(errorHandler);
-
-// export default app;
-
-
-
-// backend/app.js
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import * as Sentry from "@sentry/node";
-
-// 1. Sentry initialization MUST happen first!
-import "./sentry.js"; 
+ 
 
 import authRoute from "./routes/authRoute.js";
 import messageRoute from "./routes/messageRoute.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
 
@@ -137,17 +20,30 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+
 
 // API ROUTES
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/message", messageRoute);
 
-// 2. Sentry error handler goes AFTER routes, but BEFORE your custom error handler
+
+//  Sentry error handler goes AFTER routes, but BEFORE your custom error handler
 Sentry.setupExpressErrorHandler(app);
 
+//custom global error handler (Sends clean JSON to frontend)
+app.use((err, req, res, next) => {
+  console.error("❌ Error caught by global handler:", err);
+
+  const statusCode = err.status || err.statusCode || 500;
+  
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 export default app;

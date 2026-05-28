@@ -5,17 +5,10 @@ import { Message } from "../models/messsageModel.js";
 import { MessageCounter } from "../models/messageCounter.js";
 
 let io;
-const users = new Map(); // Map<userId, socketId>
+const users = new Map(); 
 
 export function getReceiverSocketId({receiverId, newMessage}) {
-  // const checkUser =  users[receiver];
-  // if(checkUser){
-  //   io.to(checkUser).emit("newMessage", newMessage);
-    
-  // }
-  // else{
-  //   console.log("user is not find!");
-  // }
+  
   const receiverSocketId = users.get(receiverId);
   const senderSocketId = users.get(newMessage.sender);
 
@@ -85,24 +78,6 @@ export const socketConnection = (server) => {
       }
     });
 
-    // Typing event
-    // socket.on("typing", ({ to }) => {
-    //   const receiverSocketId = users.get(to);
-    //   if (receiverSocketId) {
-    //     io.to(receiverSocketId).emit("typing", { from: userId });
-    //   }
-    // });
-
-    // client emits when chat is opened
-  //   socket.on("markMessagesSeen", async ({ chatId, userId }) => {
-  //     await Message.updateMany(
-  //       { receiver: userId, participants: chatId, seen: false },
-  //       { $set: { seen: true } }
-  //     );
-
-  // // notify the sender
-  //     io.to(chatId).emit("messagesSeen", { chatId, userId });
-  //   });
 
     // Mark messages as seen
   socket.on("markMessagesSeen", async ({ userId, friendId }) => {

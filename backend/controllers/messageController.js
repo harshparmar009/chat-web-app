@@ -6,9 +6,8 @@ import { UserChat } from '../models/userChatModel.js'
 import { MessageCounter } from '../models/messageCounter.js'
 import admin from "../firebaseAdmin.js"
 
-// const io = getIO()
 
-
+// get all users except the logged in user
 export const getAllUsers = async(req, res) => {
 
     try {
@@ -26,6 +25,7 @@ export const getAllUsers = async(req, res) => {
 
 }
 
+// get all accepted users for the logged in user for chats
 export const getAcceptedUsers = async(req, res) => {
   try {
     const userId = req.user._id
@@ -46,6 +46,7 @@ export const getAcceptedUsers = async(req, res) => {
 
 }
 
+// get messages between logged in user and another user
 export const getMessages = async (req, res) => {
     try {
       const { id: receiverId  } = req.params;
@@ -65,6 +66,7 @@ export const getMessages = async (req, res) => {
     }
   };
   
+// send message from logged in user to another user  
   export const sendMessage = async (req, res) => {
     try {
       const { text, image } = req.body;
@@ -146,6 +148,7 @@ export const getMessages = async (req, res) => {
     }
   };
 
+// get all chats for the logged in user with unseen message count and last message
   export const messageCounter = async (req, res) => {
     try {
       const userId = req.user._id;

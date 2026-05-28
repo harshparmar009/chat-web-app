@@ -1,11 +1,11 @@
 import admin from "firebase-admin";
 
-console.log("ENV CHECK:", {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKeyExists: !!process.env.FIREBASE_PRIVATE_KEY,
-  nodeEnv: process.env.NODE_ENV,
-});
+// console.log("ENV CHECK:", {
+//   projectId: process.env.FIREBASE_PROJECT_ID,
+//   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+//   privateKeyExists: !!process.env.FIREBASE_PRIVATE_KEY,
+//   nodeEnv: process.env.NODE_ENV,
+// });
 
 if (!admin.apps.length) {
   try {
@@ -16,9 +16,9 @@ if (!admin.apps.length) {
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       }),
     });
-    console.log("✅ Firebase Admin initialized");
+    console.log(" Firebase Admin initialized");
   } catch (err) {
-    console.error("❌ Firebase Admin init failed:", err.message);
+    console.error(" Firebase Admin init failed:", err.message);
   }
 }
 

@@ -32,11 +32,25 @@ const Home = () => {
         </svg>
     );
 
+    //testing Sentry error tracking
+    
+//     const createError = () => {
+//     try {
+//       throw new Error("Frontend Sentry Test Error");
+//     } catch (error) {
+//       Sentry.captureException(error);
+//     }
+//   };
+
+
     return (
         <div 
             className="flex flex-col min-h-screen text-white bg-slate-900"
             style={pageStyle}
         >
+             {/* <button onClick={createError}>
+                Create Sentry Error
+             </button> */}
             
             {/* Header / Navigation Bar */}
             <header className="w-full p-4 md:p-6 backdrop-blur-sm bg-slate-900/50 sticky top-0 z-10 shadow-lg">

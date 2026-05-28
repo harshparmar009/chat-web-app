@@ -16,6 +16,5 @@ router.get("/chat-request/:userId", getChatRequest);
 router.post("/chat-request/accept", isAuthenticated, chatRequestAccept);
 router.post("/chat-request/decline", isAuthenticated, chatRequestDecline);
 
-// router.post("/register",isAuthenticated, signUpController)
 
 export default router

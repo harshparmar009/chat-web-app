@@ -6,8 +6,10 @@ import cloudinary from "../lib/cloudinary.js"
 import { ChatRequest } from '../models/requestModel.js'
 import { UserChat } from "../models/userChatModel.js"
 import admin from "../firebaseAdmin.js"
+import * as Sentry from "@sentry/node";
 
 
+//genrate FCM token and save in DB for push notification
 export const generateFcmToken = async (req, res) => {
    try {
 
@@ -42,12 +44,16 @@ export const generateFcmToken = async (req, res) => {
 
     console.log("Register token error:", error);
 
-    res.status(500).json({
+     Sentry.captureException(error);
+
+    return res.status(500).json({
       message: "Server error",
     });
+
    }
   };
 
+// sign in controller
 export const signInController = async(req, res) => {
     try {
         const { userName, password} = req.body
@@ -95,10 +101,17 @@ export const signInController = async(req, res) => {
         
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error" });
+        //  res.status(500).json({ message: "Server error" });
+        Sentry.captureException(error);
+        
+          return  res.status(500).json({
+              success: false,
+              message: "Error in login"
+            });
     }
 } 
 
+// sign up controller
 export const signUpController = async(req, res) => {
     try {
         const { userName, password, email} = req.body
@@ -137,6 +150,9 @@ export const signUpController = async(req, res) => {
         })
 
     } catch (error) {
+
+       Sentry.captureException(error);
+        
        return res.status(400).json({
         message: `Error ${error}`
         })
@@ -152,6 +168,8 @@ export const signOutController = async(req, res) => {
 
         res.json({ message: 'Logged out successfully', success: true });
     } catch (err) {
+       Sentry.captureException(error);
+        
         res.status(500).json({ message: 'Logout error', error: err.message })
     }
 }
@@ -174,31 +192,6 @@ export const refreshController = async (req, res) => {
   };
 
 //upload profile image
-// export const uploadImageController = async(req,res) => {
-//     try{
-//         const {profilePic} = req.body
-//         const userId = req.user._id
-
-//         if (!profilePic) {
-//             return res.status(400).json({ message: "Profile pic is required" });
-//           }
-
-//        const uploadImage = await cloudinary.uploader.upload(profilePic)
-//        const updatedUser = await User.findByIdAndUpdate(userId, 
-//         { profilePic: uploadImage.secure_url}, {new: true })
-
-//         return res.status(201).json({
-//             updatedUser,
-//             message: "Profile upload succefully",
-//             success: true
-//         })
-//     }
-//    catch (error) {
-//     console.log("error in update profile:", error);
-//     res.status(500).json({ message: "Upload failed" });
-//   }
-// } 
-
 export const uploadImageController = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -230,7 +223,7 @@ export const uploadImageController = async (req, res) => {
 };
 
 
-
+//chat request controller
 export const chatRequest = async(req, res) => {
     const { senderId, receiverId } = req.body;
 
@@ -279,6 +272,7 @@ export const chatRequest = async(req, res) => {
   res.json({ message: 'Request sent', request});
 }
 
+// check if chat request is already sent
 export const checkChatRequest = async(req, res) => {
   try {
     const { senderId, receiverId } = req.body;
@@ -293,6 +287,7 @@ export const checkChatRequest = async(req, res) => {
   }
 }
 
+// get chat request for user
 export const getChatRequest = async(req, res) => {
 try {
   const { userId } = req.params
@@ -313,6 +308,7 @@ try {
 }
 }
 
+// accept chat request
 export const chatRequestAccept = async(req, res) => {
    try {
     const { userId } = req.body;
@@ -340,6 +336,7 @@ export const chatRequestAccept = async(req, res) => {
    }
 }
 
+// decline chat request
 export const chatRequestDecline = async(req, res) => {
     const { userId } = req.body;
   
@@ -355,7 +352,7 @@ export const chatRequestDecline = async(req, res) => {
 
 }
 
-
+// search user by username
 export const searchQueryController = async(req, res) => {
   try {
     const { userName } = req.params;
@@ -372,3 +369,4 @@ export const searchQueryController = async(req, res) => {
     res.status(500).json({ message: "Error searching users" });
   }
 }
+

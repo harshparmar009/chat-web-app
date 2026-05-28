@@ -1,3 +1,5 @@
+import "./sentry.js";
+
 import http from "http";
 import dotenv from "dotenv";
 
@@ -16,8 +18,6 @@ dbConnection();
 
 // Socket connection
 socketConnection(server);
-
-
 
 // Start server
 server.listen(PORT, () => {
