@@ -10,8 +10,10 @@ const sentryMetrics = (req, res, next) => {
     "active_requests_live",
     activeRequests,
     {
-      route: req.originalUrl,
-      method: req.method,
+      tags: {
+        route: req.originalUrl,
+        method: req.method,
+      },
     }
   );
 
@@ -30,8 +32,10 @@ const sentryMetrics = (req, res, next) => {
       "active_requests_live",
       activeRequests,
       {
-        route: req.originalUrl,
-        method: req.method,
+        tags: {
+          route: req.originalUrl,
+          method: req.method,
+        },
       }
     );
 
