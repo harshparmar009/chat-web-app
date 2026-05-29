@@ -15,8 +15,6 @@ import sentryMetrics from "./middlewares/sentryMetrics.js";
 const app = express();
 
 
-app.use(Sentry.Handlers.requestHandler());
-
 // Middlewares
 app.use(
   cors({
