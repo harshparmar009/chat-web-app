@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import socketAuth from "../middlewares/socketAuth.js";
 import { Message } from "../models/messsageModel.js";
 import { MessageCounter } from "../models/messageCounter.js";
+import Sentry from "../sentry.js";
 
 let io;
 const users = new Map(); 
@@ -44,6 +45,16 @@ export const socketConnection = (server) => {
     console.log(`✅ Socket connected: ${socket.id} [UserID: ${userId}]`);
     users.set(userId, socket.id);
     emitOnlineUsers();
+
+    Sentry.metrics.gauge(
+      "online_users_live",
+      users.size
+    );
+
+    console.log(
+      "🟢 Online users:",
+      users.size
+    );
 
     socket.on("typing", ({receiverId, senderId}) => {
       const receiverSocketId = users.get(receiverId);
@@ -104,6 +115,18 @@ export const socketConnection = (server) => {
       users.delete(userId);
       console.log(`❌ Socket disconnected: ${socket.id} [UserID: ${userId}]`);
       emitOnlineUsers();
+
+
+      //sentry metrics for online users
+      Sentry.metrics.gauge(
+        "online_users_live",
+        users.size
+      );
+
+      console.log(
+        "🔴 Online users:",
+        users.size
+      );
     });
   });
 };
