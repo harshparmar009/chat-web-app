@@ -8,7 +8,11 @@ const sentryMetrics = (req, res, next) => {
 
   Sentry.metrics.gauge(
     "active_requests_live",
-    activeRequests
+    activeRequests,
+    {
+      route: req.originalUrl,
+      method: req.method,
+    }
   );
 
   console.log(
@@ -24,7 +28,11 @@ const sentryMetrics = (req, res, next) => {
 
     Sentry.metrics.gauge(
       "active_requests_live",
-      activeRequests
+      activeRequests,
+      {
+        route: req.originalUrl,
+        method: req.method,
+      }
     );
 
     console.log(

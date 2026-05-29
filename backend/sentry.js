@@ -13,6 +13,8 @@ Sentry.init({
     Sentry.httpIntegration(),
     Sentry.expressIntegration(),
   ],
+
+   sendDefaultPii: true,
 });
 
 // TEST METRICS
